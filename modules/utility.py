@@ -1,7 +1,6 @@
 import geopandas as gpd
 import pandas as pd
-import pysal as ps
-import h3pandas
+from libpysal.weights import Queen, Rook, KNN
 import matplotlib.pyplot as plt
 
 
@@ -55,11 +54,11 @@ output:
 
 def weights_matrix(gdf, w_type='rook', id_col='id', k=None):
     if w_type == 'rook':
-        w = ps.weights.Rook.from_dataframe(gdf, idVariable=id_col)
+        w = Rook.from_dataframe(gdf, idVariable=id_col)
     elif w_type == 'queen':
-        w = ps.weights.Queen.from_dataframe(gdf, idVariable=id_col)
+        w = Queen.from_dataframe(gdf, idVariable=id_col)
     elif (w_type == 'knn') and (k is not None):
-        w = ps.weights.KNN.from_dataframe(gdf, k=4, idVariable=id_col)
+        w = KNN.from_dataframe(gdf, k=4, idVariable=id_col)
     else:
         w = None
     return w

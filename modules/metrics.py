@@ -1,8 +1,9 @@
 import geopandas as gpd
 import pandas as pd
-import pysal as ps
+import libpysal as ps
 import numpy as np
 from modules.utility import *
+from esda.moran import Moran_Local
 
 
 """
@@ -17,8 +18,8 @@ output:
 
 
 def communality_calc(gdf, total_users_col, total_visits_col, suffix=""):
-    gdf["visits_per_user_" + suffix] = gdf[total_visits_col] / gdf[total_users_col]
-    gdf["communality_" + suffix] = gdf["visits_per_user_" + suffix] / \
+    gdf["visits_per_user" + suffix] = gdf[total_visits_col] / gdf[total_users_col]
+    gdf["communality" + suffix] = gdf["visits_per_user" + suffix] / \
         gdf[total_visits_col]
     return gdf
 
@@ -52,7 +53,9 @@ output:
 
 
 def local_moran_calc(gdf, col, w, suffix=""):
-    gdf["local_moran_" + suffix] = ps.Moran_Local(gdf[col], w)
+    lm = Moran_Local(gdf[col], w)
+    gdf["local_moran_quad" + suffix] = lm.q
+    gdf["local_moran_Is" + suffix] = lm.Is
     return gdf
 
 
@@ -72,8 +75,7 @@ def shannon_entropy(gdf, count_by_cat_cols, base=2, suffix=""):
         probs = [count / sum(counts) for count in counts]
         entropy = -sum([prob * (np.log(prob) / np.log(base))
                         for prob in probs])
-        gdf.loc[index, "shannon_entropy_" + suffix] = entropy
-
+        gdf.loc[index, "shannon_entropy" + suffix] = entropy
     return gdf
 
 
@@ -89,6 +91,6 @@ def shannon_entropy_local_weighted(gdf, count_by_cat_cols, base=2, suffix=""):
         probs = [prob for prob in probs if prob != 0]
         entropy = -sum([prob * (np.log(prob) / np.log(base))
                        for prob in probs])
-        gdf.loc[index, "shannon_entropy_" + suffix] = entropy * \
+        gdf.loc[index, "shannon_entropy" + suffix] = entropy * \
             (len(probs) / len(count_by_cat_cols))
     return gdf
