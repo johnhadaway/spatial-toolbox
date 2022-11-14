@@ -1,6 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 import pysal as ps
+import h3pandas
 import matplotlib.pyplot as plt
 
 
@@ -62,3 +63,21 @@ def weights_matrix(gdf, w_type='rook', id_col='id', k=None):
     else:
         w = None
     return w
+
+
+"""
+Generate an h3 hexagon grid from a geodataframe
+input:
+    gdf: geodataframe
+    resolution: h3 resolution
+output:
+    gdf: geodataframe with h3 hexagons, and a column with the h3 resolution
+"""
+
+
+def generate_h3_grid(gdf, resolution=9):
+    gdf = gdf.copy()
+    gdf = gdf.h3.polyfill(
+        resolution=resolution, return_geometry=True)
+    gdf = gdf.h3.get_resolution()
+    return gdf

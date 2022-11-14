@@ -1,6 +1,6 @@
 import geopandas as gpd
 import pandas as pd
-from utility import *
+from modules.utility import *
 
 
 """

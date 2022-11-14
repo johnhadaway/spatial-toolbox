@@ -1,7 +1,8 @@
 import geopandas as gpd
 import pandas as pd
 import pysal as ps
-from utility import *
+import numpy as np
+from modules.utility import *
 
 
 """
@@ -15,9 +16,9 @@ output:
 """
 
 
-def communality_calc(gdf, total_users_col, total_visits_col, prefix=""):
-    gdf[prefix + "visits_per_user"] = gdf[total_visits_col]/gdf[total_users_col]
-    gdf[prefix + "communality"] = gdf["visits_per_user" + prefix] / \
+def communality_calc(gdf, total_users_col, total_visits_col, suffix=""):
+    gdf["visits_per_user_" + suffix] = gdf[total_visits_col]/gdf[total_users_col]
+    gdf["communality_" + suffix] = gdf["visits_per_user_" + suffix] / \
         gdf[total_visits_col]
     return gdf
 
@@ -35,7 +36,7 @@ output:
 
 def relative_frequency_calc(gdf, cols):
     for col in cols:
-        gdf[col+"_rel_freq"] = gdf[col]/gdf[cols].sum(axis=1)
+        gdf["rel_freq_" + col] = (gdf[col]/gdf[cols].sum(axis=1))*100
     return gdf
 
 
@@ -50,13 +51,43 @@ output:
 """
 
 
-def local_moran_calc(gdf, col, w):
-    gdf["local_moran"] = ps.Moran_Local(gdf[col], w)
+def local_moran_calc(gdf, col, w, suffix=""):
+    gdf["local_moran_" + suffix] = ps.Moran_Local(gdf[col], w)
     return gdf
 
 
-# ENTROPY
-# different functions for different entropy calculations, and one function to call them all (takes a geodataframe and a list of column names, whose values are counts, and returns a geodataframe with the entropy values added as columns)
+"""
+Shannon Entropy / Urban Complexity, as suggested by the following paper: "Comparing two methods for Urban Complexity calculation using Shannon-Wiener index" by Jesús López Baeza, Damiano Cerrone, and Kristjan Männigo
+input:
+    gdf: geodataframe
+    count_cols: list of column names of the columns to calculate Shannon Entropy for
+output:
+    gdf: geodataframe with Shannon Entropy column
+"""
+
+
+def shannon_entropy(gdf, count_by_cat_cols, base=2, suffix=""):
+    for index, row in gdf.iterrows():
+        counts = [row[col] for col in count_by_cat_cols]
+        probs = [count/sum(counts) for count in counts]
+        entropy = -sum([prob * (np.log(prob)/np.log(base))
+                       for prob in probs])
+        gdf.loc[index, "shannon_entropy_" + suffix] = entropy
+    return gdf
+
 
 """
+Shannon Entropy / Urban Complexity, as suggested by the following paper: "Comparing two methods for Urban Complexity calculation using Shannon-Wiener index" by Jesús López Baeza, Damiano Cerrone, and Kristjan Männigo -- hacky version, removing probs if they are 0 and then multiplying the result by the share of categories available at the location
 """
+
+
+def shannon_entropy_local_weighted(gdf, count_by_cat_cols, base=2, suffix=""):
+    for index, row in gdf.iterrows():
+        counts = [row[col] for col in count_by_cat_cols]
+        probs = [count/sum(counts) for count in counts]
+        probs = [prob for prob in probs if prob != 0]
+        entropy = -sum([prob * (np.log(prob)/np.log(base))
+                       for prob in probs])
+        gdf.loc[index, "shannon_entropy_" + suffix] = entropy * \
+            (len(probs)/len(count_by_cat_cols))
+    return gdf
