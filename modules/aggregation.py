@@ -1,9 +1,10 @@
 import geopandas as gpd
+import pandas as pd
 from utility import *
 
 
 """
-AGGREGATING POINTS TO POLYGONS
+Aggregate points, by category, to polygon
 
 input:
     point_gdf: point geodataframe
