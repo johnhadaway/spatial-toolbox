@@ -2,3 +2,4 @@
 /output
 /batch
 .DS_Store
+/modules/__pycache__

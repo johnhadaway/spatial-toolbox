@@ -17,7 +17,7 @@ output:
 
 
 def communality_calc(gdf, total_users_col, total_visits_col, suffix=""):
-    gdf["visits_per_user_" + suffix] = gdf[total_visits_col]/gdf[total_users_col]
+    gdf["visits_per_user_" + suffix] = gdf[total_visits_col] / gdf[total_users_col]
     gdf["communality_" + suffix] = gdf["visits_per_user_" + suffix] / \
         gdf[total_visits_col]
     return gdf
@@ -36,7 +36,7 @@ output:
 
 def relative_frequency_calc(gdf, cols):
     for col in cols:
-        gdf["rel_freq_" + col] = (gdf[col]/gdf[cols].sum(axis=1))*100
+        gdf["rel_freq_" + col] = (gdf[col] / gdf[cols].sum(axis=1)) * 100
     return gdf
 
 
@@ -69,10 +69,11 @@ output:
 def shannon_entropy(gdf, count_by_cat_cols, base=2, suffix=""):
     for index, row in gdf.iterrows():
         counts = [row[col] for col in count_by_cat_cols]
-        probs = [count/sum(counts) for count in counts]
-        entropy = -sum([prob * (np.log(prob)/np.log(base))
-                       for prob in probs])
+        probs = [count / sum(counts) for count in counts]
+        entropy = -sum([prob * (np.log(prob) / np.log(base))
+                        for prob in probs])
         gdf.loc[index, "shannon_entropy_" + suffix] = entropy
+
     return gdf
 
 
@@ -84,10 +85,10 @@ Shannon Entropy / Urban Complexity, as suggested by the following paper: "Compar
 def shannon_entropy_local_weighted(gdf, count_by_cat_cols, base=2, suffix=""):
     for index, row in gdf.iterrows():
         counts = [row[col] for col in count_by_cat_cols]
-        probs = [count/sum(counts) for count in counts]
+        probs = [count / sum(counts) for count in counts]
         probs = [prob for prob in probs if prob != 0]
-        entropy = -sum([prob * (np.log(prob)/np.log(base))
+        entropy = -sum([prob * (np.log(prob) / np.log(base))
                        for prob in probs])
         gdf.loc[index, "shannon_entropy_" + suffix] = entropy * \
-            (len(probs)/len(count_by_cat_cols))
+            (len(probs) / len(count_by_cat_cols))
     return gdf
