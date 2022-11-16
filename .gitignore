@@ -1,5 +1,5 @@
 /data
-/output
 /batch
+/output
 .DS_Store
 /modules/__pycache__

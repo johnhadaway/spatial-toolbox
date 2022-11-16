@@ -12,6 +12,7 @@ input:
     gdf: geodataframe
     total_users_col: column name of the total users column
     total_visits_col: column name of the total visits column
+    suffix: suffix to add to the column names
 output:
     gdf: geodataframe with communality column
 """
@@ -47,6 +48,7 @@ input:
     gdf: geodataframe
     col: column name of the column to calculate local Moran's I for
     w: weights matrix
+    suffix: suffix to add to the column names
 output:
     gdf: geodataframe with local Moran's I column
 """
@@ -64,6 +66,8 @@ Shannon Entropy / Urban Complexity, as suggested by the following paper: "Compar
 input:
     gdf: geodataframe
     count_cols: list of column names of the columns to calculate Shannon Entropy for
+    base: base of the logarithm
+    suffix: suffix to add to the column name
 output:
     gdf: geodataframe with Shannon Entropy column
 """
@@ -81,6 +85,13 @@ def shannon_entropy(gdf, count_by_cat_cols, base=2, suffix=""):
 
 """
 Shannon Entropy / Urban Complexity, as suggested by the following paper: "Comparing two methods for Urban Complexity calculation using Shannon-Wiener index" by Jesús López Baeza, Damiano Cerrone, and Kristjan Männigo -- hacky version, removing probs if they are 0 and then multiplying the result by the share of categories available at the location
+input:
+    gdf: geodataframe
+    count_cols: list of column names of the columns to calculate Shannon Entropy for
+    base: base of the logarithm
+    suffix: suffix to add to the column name
+output:
+    gdf: geodataframe with Shannon Entropy column
 """
 
 
