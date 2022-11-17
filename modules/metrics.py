@@ -58,6 +58,9 @@ def local_moran_calc(gdf, col, w, suffix=""):
     lm = Moran_Local(gdf[col], w)
     gdf["local_moran_quad" + suffix] = lm.q
     gdf["local_moran_Is" + suffix] = lm.Is
+    gdf["local_moran_p_sim" + suffix] = lm.p_sim
+    gdf.loc[gdf["local_moran_p_sim" + suffix] > 0.05,
+            "local_moran_quad" + suffix] = 0
     return gdf
 
 
