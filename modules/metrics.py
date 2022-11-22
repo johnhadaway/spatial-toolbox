@@ -41,6 +41,7 @@ def relative_frequency_calc(gdf, cols):
     gdf = gdf.copy()
     for col in cols:
         gdf["rel_freq_" + col] = (gdf[col] / gdf[cols].sum(axis=1)) * 100
+    gdf["num_cat_cols_with_value"] = (gdf[cols] > 0).sum(axis=1)
     return gdf
 
 
@@ -88,7 +89,9 @@ def shannon_entropy(gdf, count_by_cat_cols, base=2, suffix=""):
         with np.errstate(divide='ignore', invalid='ignore'):
             entropy = -sum([prob * (np.log(prob) / np.log(base))
                             for prob in probs])
-        gdf.loc[index, "shannon_entropy" + suffix] = entropy
+            if np.isnan(entropy):
+                entropy = 0
+            gdf.loc[index, "shannon_entropy" + suffix] = entropy
     return gdf
 
 
@@ -113,6 +116,8 @@ def shannon_entropy_local_weighted(gdf, count_by_cat_cols, base=2, suffix=""):
         with np.errstate(divide='ignore', invalid='ignore'):
             entropy = -sum([prob * (np.log(prob) / np.log(base))
                             for prob in probs])
+            if np.isnan(entropy):
+                entropy = 0
             gdf.loc[index, "shannon_entropy" + suffix] = entropy * \
                 (len(probs) / len(count_by_cat_cols))
     return gdf
